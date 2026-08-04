@@ -3,7 +3,7 @@
 # Usage: bash docker-run.sh
 
 # ── Fill these in before running ──────────────────────────────────────────────
-SERVER_IP="YOUR_SERVER_IP"          # e.g. 103.21.45.67 or tridevhealthcare-erp.nlinkits.com
+SERVER_IP="YOUR_SERVER_IP"          # e.g. 167.71.235.144 or tridevhealthcare-erp.nlinkits.com
 BEARER_TOKEN="YOUR_BEARER_TOKEN"    # must match PROMETHEUS_BEARER_TOKEN in server .env
 PROMETHEUS_PORT="9091"              # must match PROMETHEUS_PUBLIC_PORT in server .env
 # ─────────────────────────────────────────────────────────────────────────────
@@ -13,16 +13,28 @@ if [ "$SERVER_IP" = "YOUR_SERVER_IP" ]; then
   exit 1
 fi
 
-echo "Starting aw-sync-agent..."
-echo "  Server  : http://${SERVER_IP}:${PROMETHEUS_PORT}"
-echo "  Hostname: $(hostname)  (this is your employee ID in Grafana)"
+# On macOS with Docker Desktop, localhost inside Docker != host's localhost
+# Use host.docker.internal to reach ActivityWatch running on the Mac
+if [[ "$(uname)" == "Darwin" ]]; then
+  AW_URL="http://host.docker.internal:5600"
+else
+  AW_URL="http://localhost:5600"
+fi
+
+echo "Starting Tridev Sync Agent..."
+echo "  Server     : http://${SERVER_IP}:${PROMETHEUS_PORT}"
+echo "  ActivityWatch : ${AW_URL}"
+echo "  Hostname   : $(hostname)  (this is your employee ID in Grafana)"
 echo ""
+
+# Stop and remove existing container if running
+docker stop aw-sync-agent 2>/dev/null
+docker rm aw-sync-agent 2>/dev/null
 
 docker run -d \
   --name aw-sync-agent \
   --restart unless-stopped \
-  --network host \
-  -e ACTIVITY_WATCH_URL=http://localhost:5600 \
+  -e ACTIVITY_WATCH_URL=${AW_URL} \
   -e PROMETHEUS_URL=http://${SERVER_IP}:${PROMETHEUS_PORT} \
   -e PROMETHEUS_AUTH=${BEARER_TOKEN} \
   phrp5/aw-sync-agent:latest

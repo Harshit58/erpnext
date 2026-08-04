@@ -167,7 +167,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "count(count by (hostname) (aw_event_duration_seconds{hostname=~\"$employee\"} offset 0m))",
+          "expr": "count(count by (hostname) (aw_event_duration_seconds{hostname=~\"$employee\"}))",
           "legendFormat": "Online Now",
           "refId": "A"
         }
@@ -208,13 +208,13 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (hostname) (rate(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"not-afk\", hostname=~\"$employee\"}[$__rate_interval]))",
+          "expr": "sum by (hostname) (rate(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"not-afk\", hostname=~\"$employee\"}[5m]))",
           "legendFormat": "Active - {{hostname}}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (hostname) (rate(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"afk\", hostname=~\"$employee\"}[$__rate_interval]))",
+          "expr": "sum by (hostname) (rate(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"afk\", hostname=~\"$employee\"}[5m]))",
           "legendFormat": "Idle - {{hostname}}",
           "refId": "B"
         }
