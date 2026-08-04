@@ -38,6 +38,10 @@
 
         <key>INCLUDE_HOSTNAME</key>
         <string>true</string>
+
+        <key>CHECKPOINT</key>
+        <!-- Path to checkpoint file — created automatically on first sync -->
+        <string>/Users/YOUR_USERNAME/aw-sync-suite/aw-sync-agent/checkpoint.json</string>
     </dict>
 
     <key>WorkingDirectory</key>
