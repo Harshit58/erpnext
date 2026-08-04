@@ -1,0 +1,531 @@
+{
+  "title": "ERPNext Activity Monitor",
+  "uid": "erpnext-activity-v1",
+  "description": "Tracks logins, document views, report exports and user activity across ERPNext sites",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5m",
+  "timezone": "browser",
+  "tags": ["erpnext", "activity", "audit"],
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "links": [],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "mysql",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource",
+        "label": "ERPNext Site"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Unique Active Users",
+      "description": "Number of distinct users who logged in during the selected time range",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT COUNT(DISTINCT user) AS value FROM `tabActivity Log` WHERE $__timeFilter(creation) AND operation = 'Login' AND status = 'Success'",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Total Successful Logins",
+      "description": "Total login events in the selected time range",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT COUNT(*) AS value FROM `tabActivity Log` WHERE $__timeFilter(creation) AND operation = 'Login' AND status = 'Success'",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Failed Login Attempts",
+      "description": "Number of failed login attempts — high values may indicate a brute-force attack",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 3 },
+              { "color": "red", "value": 10 }
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT COUNT(*) AS value FROM `tabActivity Log` WHERE $__timeFilter(creation) AND operation = 'Login' AND status = 'Failed'",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Document Views",
+      "description": "Total documents viewed by all users in the selected time range",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "purple", "value": null }
+            ]
+          },
+          "unit": "short",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT COUNT(*) AS value FROM `tabView Log` WHERE $__timeFilter(creation)",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Login Activity Over Time",
+      "description": "Successful logins vs failed attempts over the selected time range",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Failed Logins" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Successful Logins" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT $__timeGroupAlias(creation, $__interval), COUNT(*) AS 'Successful Logins' FROM `tabActivity Log` WHERE $__timeFilter(creation) AND operation = 'Login' AND status = 'Success' GROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT $__timeGroupAlias(creation, $__interval), COUNT(*) AS 'Failed Logins' FROM `tabActivity Log` WHERE $__timeFilter(creation) AND operation = 'Login' AND status = 'Failed' GROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Most Active Users",
+      "description": "Top 10 users by number of logins in the selected period",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 10, "x": 0, "y": 12 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 200
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT user, COUNT(*) AS 'Logins' FROM `tabActivity Log` WHERE $__timeFilter(creation) AND operation = 'Login' AND status = 'Success' GROUP BY user ORDER BY Logins DESC LIMIT 10",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Recent Login Events",
+      "description": "All login and logout events — includes IP address for security review",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 14, "x": 10, "y": 12 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Status" },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  { "type": "value", "options": { "Success": { "color": "green", "index": 0 } } },
+                  { "type": "value", "options": { "Failed": { "color": "red", "index": 1 } } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Time" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT creation AS 'Time', user AS 'User', operation AS 'Operation', status AS 'Status', ip_address AS 'IP Address', subject AS 'Detail' FROM `tabActivity Log` WHERE $__timeFilter(creation) ORDER BY creation DESC LIMIT 200",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Document Views",
+      "description": "Which documents each user has opened — requires 'Track Views' enabled on DocTypes",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Time" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT creation AS 'Time', viewed_by AS 'User', reference_doctype AS 'DocType', reference_name AS 'Document' FROM `tabView Log` WHERE $__timeFilter(creation) ORDER BY creation DESC LIMIT 200",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Report & Export Access",
+      "description": "Every time a user ran a report, exported data or printed a document",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Time" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT creation AS 'Time', user AS 'User', COALESCE(report_name, method, 'N/A') AS 'Report', export_from AS 'DocType', COALESCE(file_type, 'View') AS 'Format', reference_document AS 'Document' FROM `tabAccess Log` WHERE $__timeFilter(creation) ORDER BY creation DESC LIMIT 200",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Activity by Hour of Day",
+      "description": "Shows which hours of the day are busiest — useful for understanding work patterns",
+      "type": "barchart",
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 28 },
+      "datasource": { "type": "mysql", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-BlYlRd" },
+          "custom": {
+            "axisLabel": "Hour of Day",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "scheme",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.9,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": { "mode": "single", "sort": "none" },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 100
+      },
+      "targets": [
+        {
+          "datasource": { "type": "mysql", "uid": "${datasource}" },
+          "rawSql": "SELECT CONCAT(LPAD(HOUR(creation), 2, '0'), ':00') AS 'Hour', COUNT(*) AS 'Actions' FROM `tabActivity Log` WHERE $__timeFilter(creation) GROUP BY HOUR(creation) ORDER BY HOUR(creation)",
+          "format": "table",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+apiVersion: 1
+
+# Grafana automatically loads these datasources on startup.
+# Credentials are injected from environment variables (set in .env).
+
+datasources:
+  - name: "ERPNext - tridevhealthcare-erp.nlinkits.com"
+    uid: erpnext-site1
+    type: mysql
+    access: proxy
+    url: "${SITE1_DB_HOST}:${SITE1_DB_PORT}"
+    database: "${SITE1_DB_NAME}"
+    user: "${SITE1_DB_USER}"
+    secureJsonData:
+      password: "${SITE1_DB_PASSWORD}"
+    jsonData:
+      maxOpenConns: 5
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+      connectionTimeout: 30
+      tlsSkipVerify: true
+    isDefault: true
+    editable: false
+
+  # ── Add more sites below ────────────────────────────────────────────────────
+  # - name: "ERPNext - client2.yourdomain.com"
+  #   uid: erpnext-site2
+  #   type: mysql
+  #   access: proxy
+  #   url: "${SITE2_DB_HOST}:${SITE2_DB_PORT}"
+  #   database: "${SITE2_DB_NAME}"
+  #   user: "${SITE2_DB_USER}"
+  #   secureJsonData:
+  #     password: "${SITE2_DB_PASSWORD}"
+  #   jsonData:
+  #     maxOpenConns: 5
+  #     maxIdleConns: 5
+  #     connMaxLifetime: 14400
+  #     connectionTimeout: 30
+  #     tlsSkipVerify: true
+  #   isDefault: false
+  #   editable: false

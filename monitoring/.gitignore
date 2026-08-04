@@ -1,0 +1,5 @@
+# Never commit real credentials
+.env
+
+# Grafana runtime data
+grafana/data/
