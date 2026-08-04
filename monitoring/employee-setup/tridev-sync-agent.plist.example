@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  macOS LaunchAgent — auto-starts Tridev Sync Agent at login.
+
+  SETUP (one-time):
+    1. Copy this file to: ~/Library/LaunchAgents/com.tridev.sync-agent.plist
+    2. Replace ALL placeholders below (YOUR_USERNAME, YOUR_SERVER_IP, YOUR_BEARER_TOKEN,
+       and the path to the aw-sync-agent binary)
+    3. Load it: launchctl load ~/Library/LaunchAgents/com.tridev.sync-agent.plist
+
+  TO STOP:
+    launchctl unload ~/Library/LaunchAgents/com.tridev.sync-agent.plist
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tridev.sync-agent</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <!-- Full path to aw-sync-agent binary, e.g. /Users/YOUR_USERNAME/aw-sync-suite/aw-sync-agent/aw-sync-agent -->
+        <string>/Users/YOUR_USERNAME/aw-sync-suite/aw-sync-agent/aw-sync-agent</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>ACTIVITY_WATCH_URL</key>
+        <string>http://localhost:5600</string>
+
+        <key>PROMETHEUS_URL</key>
+        <!-- Replace with your server IP and port -->
+        <string>http://YOUR_SERVER_IP:9091/api/v1/write</string>
+
+        <key>PROMETHEUS_AUTH</key>
+        <!-- Replace with the token provided by admin -->
+        <string>YOUR_BEARER_TOKEN</string>
+
+        <key>INCLUDE_HOSTNAME</key>
+        <string>true</string>
+    </dict>
+
+    <key>WorkingDirectory</key>
+    <!-- Must match the directory containing the binary -->
+    <string>/Users/YOUR_USERNAME/aw-sync-suite/aw-sync-agent</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/tridev-sync-agent.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/tridev-sync-agent.log</string>
+</dict>
+</plist>

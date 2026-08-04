@@ -46,46 +46,73 @@ After installing, the extension icon appears in your browser toolbar. It automat
 
 The Tridev Sync Agent runs in the background and sends your activity data to the company server every 5 minutes.
 
-### Option A: Docker (recommended — works on Windows/Mac/Linux)
-
-**Requirement:** Docker Desktop installed → https://www.docker.com/products/docker-desktop/
-
-**Windows (PowerShell):**
-1. Get `docker-run.ps1` from your admin
-2. Admin will fill in `SERVER_IP` and `BEARER_TOKEN` before sending
-3. Right-click `docker-run.ps1` → **Run with PowerShell**
-
-**macOS / Linux (Terminal):**
-1. Get `docker-run.sh` from your admin
-2. Run: `bash docker-run.sh`
+> **Admin will provide your `SERVER_IP` and `BEARER_TOKEN` — do not share these.**
 
 ---
 
-### Option B: Binary (no Docker needed)
+### Option A: Build from source (macOS — required for Mac)
 
-1. Download the latest `aw-sync-agent` binary from:
+> The official binary releases do not include a macOS build. Mac users must build the agent from source (takes ~2 minutes).
+
+**Requirements:** [Homebrew](https://brew.sh) installed.
+
+```bash
+# 1. Install Go
+brew install go
+
+# 2. Clone the repo and build
+git clone https://github.com/phrp720/aw-sync-suite
+cd aw-sync-suite/aw-sync-agent
+
+# 3. Run the agent (replace placeholders with values from admin)
+ACTIVITY_WATCH_URL=http://localhost:5600 \
+PROMETHEUS_URL=http://YOUR_SERVER_IP:9091/api/v1/write \
+PROMETHEUS_AUTH=YOUR_BEARER_TOKEN \
+INCLUDE_HOSTNAME=true \
+./aw-sync-agent
+```
+
+To run in the background: add `&` at the end, or use a terminal multiplexer like `screen`/`tmux`.
+
+To run at login (macOS): ask your admin to provide a LaunchAgent `.plist` file.
+
+---
+
+### Option B: Windows binary
+
+1. Download **`aw-sync-agent-vX.X.X-windows-x86_64.zip`** from:
    **https://github.com/phrp720/aw-sync-suite/releases/latest**
 
-2. Extract the zip. You'll get a folder with:
-   - `aw-sync-agent` (or `aw-sync-agent.exe` on Windows)
-   - `config/aw-sync-settings.yaml`
+2. Extract the zip. Get `docker-run.ps1` from your admin and run it in PowerShell:
+   ```powershell
+   .\docker-run.ps1
+   ```
+   *(Requires Docker Desktop — https://www.docker.com/products/docker-desktop/)*
 
-3. Edit `config/aw-sync-settings.yaml`:
+   **Or** edit `config/aw-sync-settings.yaml` in the extracted folder:
    ```yaml
    awUrl: "http://localhost:5600"
-   prometheusUrl: "http://YOUR_SERVER_IP:9091"
+   prometheusUrl: "http://YOUR_SERVER_IP:9091/api/v1/write"
    prometheusAuth: "YOUR_BEARER_TOKEN"
    cron: "*/5 * * * *"
    includeHostname: true
    ```
-   *(Admin will provide `YOUR_SERVER_IP` and `YOUR_BEARER_TOKEN`)*
+   Then run: `aw-sync-agent.exe`
 
-4. Run the agent:
-   - **Windows**: double-click `aw-sync-agent.exe`
-   - **macOS/Linux**: `./aw-sync-agent`
-
-5. To run at startup (Windows): place a shortcut to `aw-sync-agent.exe` in:
+3. To run at Windows startup: place a shortcut to `aw-sync-agent.exe` in:
    `C:\Users\YOUR_NAME\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\`
+
+---
+
+### Option C: Linux binary
+
+1. Download **`aw-sync-agent-vX.X.X-linux-x86_64.zip`** from:
+   **https://github.com/phrp720/aw-sync-suite/releases/latest**
+
+2. Extract, edit `config/aw-sync-settings.yaml` with your server details, then:
+   ```bash
+   chmod +x aw-sync-agent && ./aw-sync-agent
+   ```
 
 ---
 
