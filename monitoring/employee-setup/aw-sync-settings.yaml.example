@@ -1,0 +1,27 @@
+# aw-sync-agent configuration
+# Copy this file to: aw-sync-settings.yaml
+# Then fill in YOUR_SERVER_IP and YOUR_BEARER_TOKEN before running.
+
+# ActivityWatch instance on this computer (default, no change needed)
+awUrl: "http://localhost:5600"
+
+# Your central server's Prometheus endpoint (secured by Nginx)
+# Replace YOUR_SERVER_IP with your server's public IP or domain
+prometheusUrl: "http://YOUR_SERVER_IP:9091"
+
+# Bearer token for authentication (must match PROMETHEUS_BEARER_TOKEN in .env)
+prometheusAuth: "YOUR_BEARER_TOKEN"
+
+# How often to sync data to the server (every 5 minutes)
+cron: "*/5 * * * *"
+
+# Include this computer's hostname as a label on all metrics
+# This is how admin identifies which employee the data belongs to
+includeHostname: true
+
+# Optionally exclude specific watchers you don't want to sync
+# excludedWatchers:
+#   - "aw-watcher-afk"       # uncomment to skip idle tracking
+
+# Optional: set strict ordering for event processing
+StrictOrder: false

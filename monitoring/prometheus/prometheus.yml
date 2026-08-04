@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  # Label added to all metrics so you can distinguish this Prometheus instance
+  external_labels:
+    monitor: 'erpnext-activity'
+
+# No scrape targets needed here.
+# All data arrives via Prometheus Remote Write pushed by aw-sync-agent
+# running on each employee's computer.
+#
+# Data flows:
+#   Employee PC → aw-sync-agent → Nginx (bearer token auth, port 9091)
+#                                       → Prometheus /api/v1/write
+#                                             → stored here
+#   Grafana → reads from Prometheus (internal Docker network, port 9090)
+
+scrape_configs:
+  # Prometheus monitors itself — useful for debugging data flow
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

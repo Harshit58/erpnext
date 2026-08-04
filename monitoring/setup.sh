@@ -69,15 +69,31 @@ echo "  Then update SITE1_DB_USER and SITE1_DB_PASSWORD in .env to use grafana_r
 echo ""
 read -p "  Press Enter to skip for now and continue with current credentials..."
 
-# ── 4. Start Grafana ─────────────────────────────────────────────────────────
-step "Starting Grafana"
+# ── 4. Generate bearer token if not set ─────────────────────────────────────
+step "Checking bearer token"
+
+if grep -q "CHANGE_ME_GENERATE_WITH_OPENSSL" .env 2>/dev/null; then
+  warn "PROMETHEUS_BEARER_TOKEN is not set. Generating one now..."
+  TOKEN=$(openssl rand -hex 32)
+  sed -i.bak "s/CHANGE_ME_GENERATE_WITH_OPENSSL/${TOKEN}/" .env && rm -f .env.bak
+  ok "Generated bearer token: ${TOKEN}"
+  echo ""
+  echo -e "  ${YELLOW}Save this token — you will need it for each employee's aw-sync-settings.yaml:${NC}"
+  echo -e "  ${BOLD}  ${TOKEN}${NC}"
+  echo ""
+else
+  ok "Bearer token already set"
+fi
+
+# ── 5. Start all services ─────────────────────────────────────────────────────
+step "Starting Grafana + Prometheus + Nginx"
 
 docker compose up -d
 
 echo ""
 ok "Grafana container started"
 
-# ── 5. Wait for Grafana to be healthy ───────────────────────────────────────
+# ── 6. Wait for Grafana to be healthy ───────────────────────────────────────
 step "Waiting for Grafana to become ready"
 
 MAX_WAIT=60
@@ -96,7 +112,7 @@ done
 echo ""
 ok "Grafana is healthy"
 
-# ── 6. Print summary ─────────────────────────────────────────────────────────
+# ── 7. Print summary ─────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}═══════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}${BOLD}  Setup complete!${NC}"
@@ -109,12 +125,17 @@ echo ""
 echo "  Dashboards are pre-loaded. Look for:"
 echo "    → 'ERPNext Activity Monitor' in the Dashboards menu"
 echo ""
-echo "  Next steps:"
-echo "    1. Open Grafana in your browser"
-echo "    2. Select your site from the 'ERPNext Site' dropdown"
-echo "    3. To enable Document View tracking in ERPNext:"
-echo "       Customize Form → any DocType → check 'Track Views' → Save"
-echo ""
-echo -e "  Logs : docker compose logs -f grafana"
-echo -e "  Stop : docker compose down"
+  echo "  Dashboards:"
+  echo "    → 'ERPNext Activity Monitor'            (Phase 1 — ERPNext logs)"
+  echo "    → 'Tridev Activity Watcher - Employee Desktop'  (Phase 2 — employee PCs)"
+  echo ""
+  PROM_PORT="${PROMETHEUS_PUBLIC_PORT:-9091}"
+  echo -e "  Phase 2 — Employee setup:"
+  echo "    1. Open firewall port ${PROM_PORT} on this server (TCP inbound)"
+  echo "    2. Share  employee-setup/README.md  with each employee"
+  echo "    3. Fill in SERVER_IP and BEARER_TOKEN in docker-run.sh / docker-run.ps1"
+  echo "    4. Send the filled scripts to employees to run on their computers"
+  echo ""
+  echo -e "  Logs : docker compose logs -f"
+  echo -e "  Stop : docker compose down"
 echo ""
