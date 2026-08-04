@@ -3,8 +3,8 @@
 # Usage: bash docker-run.sh
 
 # ── Fill these in before running ──────────────────────────────────────────────
-SERVER_IP="YOUR_SERVER_IP"          # e.g. 167.71.235.144 or tridevhealthcare-erp.nlinkits.com
-BEARER_TOKEN="YOUR_BEARER_TOKEN"    # must match PROMETHEUS_BEARER_TOKEN in server .env
+SERVER_IP="167.71.235.144"          # e.g. 167.71.235.144 or tridevhealthcare-erp.nlinkits.com
+BEARER_TOKEN="c27a03cff967b9b9c682ee088f61b24b25a1d2e38890e3f82b540fce5f5a6401"    # must match PROMETHEUS_BEARER_TOKEN in server .env
 PROMETHEUS_PORT="9091"              # must match PROMETHEUS_PUBLIC_PORT in server .env
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -35,8 +35,9 @@ docker run -d \
   --name aw-sync-agent \
   --restart unless-stopped \
   -e ACTIVITY_WATCH_URL=${AW_URL} \
-  -e PROMETHEUS_URL=http://${SERVER_IP}:${PROMETHEUS_PORT} \
+  -e PROMETHEUS_URL=http://${SERVER_IP}:${PROMETHEUS_PORT}/api/v1/write \
   -e PROMETHEUS_AUTH=${BEARER_TOKEN} \
+  -e INCLUDE_HOSTNAME=true \
   phrp5/aw-sync-agent:latest
 
 echo ""
