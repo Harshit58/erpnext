@@ -29,8 +29,8 @@
         <string>http://localhost:5600</string>
 
         <key>PROMETHEUS_URL</key>
-        <!-- Replace with your server IP and port -->
-        <string>http://YOUR_SERVER_IP:9091/api/v1/write</string>
+        <!-- Replace with your server IP and port (base URL only — no path) -->
+        <string>http://YOUR_SERVER_IP:9091</string>
 
         <key>PROMETHEUS_AUTH</key>
         <!-- Replace with the token provided by admin -->

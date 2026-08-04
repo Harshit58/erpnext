@@ -35,7 +35,7 @@ docker run -d \
   --name aw-sync-agent \
   --restart unless-stopped \
   -e ACTIVITY_WATCH_URL=${AW_URL} \
-  -e PROMETHEUS_URL=http://${SERVER_IP}:${PROMETHEUS_PORT}/api/v1/write \
+  -e PROMETHEUS_URL=http://${SERVER_IP}:${PROMETHEUS_PORT} \
   -e PROMETHEUS_AUTH=${BEARER_TOKEN} \
   -e INCLUDE_HOSTNAME=true \
   phrp5/aw-sync-agent:latest

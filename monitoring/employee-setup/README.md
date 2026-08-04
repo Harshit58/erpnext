@@ -66,7 +66,7 @@ cd aw-sync-suite/aw-sync-agent
 
 # 3. Run the agent (replace placeholders with values from admin)
 ACTIVITY_WATCH_URL=http://localhost:5600 \
-PROMETHEUS_URL=http://YOUR_SERVER_IP:9091/api/v1/write \
+PROMETHEUS_URL=http://YOUR_SERVER_IP:9091 \
 PROMETHEUS_AUTH=YOUR_BEARER_TOKEN \
 INCLUDE_HOSTNAME=true \
 CHECKPOINT=./checkpoint.json \
