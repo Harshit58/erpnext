@@ -76,7 +76,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (host) (sum_over_time(aw_watcher_afk{status=\"not-afk\", host=~\"$employee\"}[$__range]))",
+          "expr": "sum by (host) (max_over_time(aw_watcher_afk{status=\"not-afk\", host=~\"$employee\"}[$__range]))",
           "legendFormat": "{{host}}",
           "refId": "A"
         }
@@ -116,7 +116,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (host) (sum_over_time(aw_watcher_afk{status=\"afk\", host=~\"$employee\"}[$__range]))",
+          "expr": "sum by (host) (max_over_time(aw_watcher_afk{status=\"afk\", host=~\"$employee\"}[$__range]))",
           "legendFormat": "{{host}}",
           "refId": "A"
         }
@@ -154,7 +154,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "count(count by (host) (last_over_time(aw_watcher_afk{host=~\"$employee\"}[$__range])))",
+          "expr": "count(count by (host) (max_over_time(aw_watcher_afk{host=~\"$employee\"}[$__range])))",
           "legendFormat": "Employees",
           "refId": "A"
         }
@@ -238,7 +238,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "topk(10, sum by (app) (sum_over_time(aw_watcher_window{host=~\"$employee\"}[$__range])))",
+          "expr": "topk(10, sum by (app) (max_over_time(aw_watcher_window{host=~\"$employee\"}[$__range])))",
           "legendFormat": "{{app}}",
           "refId": "A",
           "instant": true
@@ -275,7 +275,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "topk(10, sum by (url) (sum_over_time(aw_client_web{host=~\"$employee\"}[$__range])))",
+          "expr": "topk(10, sum by (url) (max_over_time(aw_client_web{host=~\"$employee\"}[$__range])))",
           "legendFormat": "{{url}}",
           "refId": "A",
           "instant": true
@@ -335,7 +335,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sort_desc(sum by (host, app) (sum_over_time(aw_watcher_window{host=~\"$employee\"}[$__range])))",
+          "expr": "sort_desc(sum by (host, app) (max_over_time(aw_watcher_window{host=~\"$employee\"}[$__range])))",
           "legendFormat": "{{host}} | {{app}}",
           "refId": "A",
           "instant": true,
