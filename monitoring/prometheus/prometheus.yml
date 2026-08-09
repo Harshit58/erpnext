@@ -11,7 +11,7 @@ global:
 # Note: out-of-order ingestion is always-on in Prometheus v2.51+ (no feature flag needed).
 storage:
   tsdb:
-    out_of_order_time_window: 7d
+    out_of_order_time_window: 365d
 
 # No scrape targets needed here.
 # All data arrives via Prometheus Remote Write pushed by aw-sync-agent
