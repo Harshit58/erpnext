@@ -3,14 +3,14 @@
   "uid": "activitywatch-v1",
   "description": "Tracks active applications, browser usage, idle time and work hours per employee — powered by Tridev Activity Watcher",
   "schemaVersion": 38,
-  "version": 1,
+  "version": 2,
   "refresh": "2m",
   "timezone": "browser",
   "tags": ["tridev", "activity-watcher", "employees", "desktop"],
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "time": { "from": "now-8h", "to": "now" },
+  "time": { "from": "now-7d", "to": "now" },
   "timepicker": {},
   "links": [],
   "annotations": { "list": [] },
@@ -21,24 +21,11 @@
         "label": "Employee",
         "type": "query",
         "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-        "query": "label_values(hostname)",
+        "query": "label_values(aw_watcher_afk, host)",
         "refresh": 2,
         "includeAll": true,
         "allValue": ".*",
         "multi": true,
-        "hide": 0,
-        "sort": 1
-      },
-      {
-        "name": "bucket",
-        "label": "Watcher",
-        "type": "query",
-        "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-        "query": "label_values(bucket)",
-        "refresh": 2,
-        "includeAll": true,
-        "allValue": ".*",
-        "multi": false,
         "hide": 0,
         "sort": 1
       }
@@ -57,8 +44,8 @@
     },
     {
       "id": 2,
-      "title": "Active Time Today (per Employee)",
-      "description": "Total non-AFK (actively working) time per employee today",
+      "title": "Active Time (per Employee)",
+      "description": "Total non-AFK (actively working) time per employee in selected range",
       "type": "stat",
       "gridPos": { "h": 5, "w": 8, "x": 0, "y": 4 },
       "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
@@ -89,16 +76,16 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (hostname) (increase(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"not-afk\", hostname=~\"$employee\"}[8h]))",
-          "legendFormat": "{{hostname}}",
+          "expr": "sum by (host) (sum_over_time(aw_watcher_afk{status=\"not-afk\", host=~\"$employee\"}[$__range]))",
+          "legendFormat": "{{host}}",
           "refId": "A"
         }
       ]
     },
     {
       "id": 3,
-      "title": "Idle Time Today (per Employee)",
-      "description": "Total AFK (away from keyboard) time per employee today",
+      "title": "Idle Time (per Employee)",
+      "description": "Total AFK (away from keyboard) time per employee in selected range",
       "type": "stat",
       "gridPos": { "h": 5, "w": 8, "x": 8, "y": 4 },
       "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
@@ -129,16 +116,16 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (hostname) (increase(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"afk\", hostname=~\"$employee\"}[8h]))",
-          "legendFormat": "{{hostname}}",
+          "expr": "sum by (host) (sum_over_time(aw_watcher_afk{status=\"afk\", host=~\"$employee\"}[$__range]))",
+          "legendFormat": "{{host}}",
           "refId": "A"
         }
       ]
     },
     {
       "id": 4,
-      "title": "Employees Currently Online",
-      "description": "Employees who sent data in the last 10 minutes",
+      "title": "Employees With Data",
+      "description": "Employees who have synced data in the selected time range",
       "type": "stat",
       "gridPos": { "h": 5, "w": 8, "x": 16, "y": 4 },
       "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
@@ -167,8 +154,8 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "count(count by (hostname) (aw_event_duration_seconds{hostname=~\"$employee\"}))",
-          "legendFormat": "Online Now",
+          "expr": "count(count by (host) (last_over_time(aw_watcher_afk{host=~\"$employee\"}[$__range])))",
+          "legendFormat": "Employees",
           "refId": "A"
         }
       ]
@@ -208,14 +195,14 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (hostname) (rate(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"not-afk\", hostname=~\"$employee\"}[5m]))",
-          "legendFormat": "Active - {{hostname}}",
+          "expr": "sum by (host) (sum_over_time(aw_watcher_afk{status=\"not-afk\", host=~\"$employee\"}[$__interval]))",
+          "legendFormat": "Active - {{host}}",
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sum by (hostname) (rate(aw_event_duration_seconds{bucket=~\"aw-watcher-afk.*\", status=\"afk\", hostname=~\"$employee\"}[5m]))",
-          "legendFormat": "Idle - {{hostname}}",
+          "expr": "sum by (host) (sum_over_time(aw_watcher_afk{status=\"afk\", host=~\"$employee\"}[$__interval]))",
+          "legendFormat": "Idle - {{host}}",
           "refId": "B"
         }
       ]
@@ -251,7 +238,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "topk(10, sum by (app) (increase(aw_event_duration_seconds{bucket=~\"aw-watcher-window.*\", hostname=~\"$employee\"}[$__range])))",
+          "expr": "topk(10, sum by (app) (sum_over_time(aw_watcher_window{host=~\"$employee\"}[$__range])))",
           "legendFormat": "{{app}}",
           "refId": "A",
           "instant": true
@@ -288,7 +275,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "topk(10, sum by (url) (increase(aw_event_duration_seconds{bucket=~\"aw-watcher-web.*\", hostname=~\"$employee\"}[$__range])))",
+          "expr": "topk(10, sum by (url) (sum_over_time(aw_client_web{host=~\"$employee\"}[$__range])))",
           "legendFormat": "{{url}}",
           "refId": "A",
           "instant": true
@@ -348,8 +335,8 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
-          "expr": "sort_desc(sum by (hostname, app) (increase(aw_event_duration_seconds{bucket=~\"aw-watcher-window.*\", hostname=~\"$employee\"}[$__range])))",
-          "legendFormat": "{{hostname}} | {{app}}",
+          "expr": "sort_desc(sum by (host, app) (sum_over_time(aw_watcher_window{host=~\"$employee\"}[$__range])))",
+          "legendFormat": "{{host}} | {{app}}",
           "refId": "A",
           "instant": true,
           "format": "table"
@@ -361,7 +348,7 @@
           "id": "organize",
           "options": {
             "renameByName": {
-              "hostname": "Employee",
+              "host": "Employee",
               "app": "Application",
               "Value": "Time Spent"
             }
