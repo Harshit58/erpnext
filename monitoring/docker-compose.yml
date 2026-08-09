@@ -48,8 +48,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-90d}"
-      - "--enable-feature=out-of-order-blocks"          # required for out-of-order ingestion
-      - "--storage.tsdb.out-of-order-time-window=2h"  # allow ActivityWatch data up to 2h behind Prometheus self-scrape head
+      - "--enable-feature=out-of-order-blocks"  # required; window configured in prometheus.yml storage.tsdb.out_of_order_time_window
       - "--web.enable-remote-write-receiver"   # accepts push from aw-sync-agent
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"

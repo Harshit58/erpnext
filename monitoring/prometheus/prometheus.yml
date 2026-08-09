@@ -1,6 +1,13 @@
 global:
   scrape_interval: 30s
   evaluation_interval: 30s
+
+# Allow ActivityWatch historical data up to 7 days older than the head maxTime.
+# Required because Prometheus self-scraping advances the head timestamp while
+# employees may push older ActivityWatch events on first sync.
+storage:
+  tsdb:
+    out_of_order_time_window: 7d
   # Label added to all metrics so you can distinguish this Prometheus instance
   external_labels:
     monitor: 'erpnext-activity'
