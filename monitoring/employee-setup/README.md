@@ -5,66 +5,87 @@ Admin does the server-side setup first (see parent README.md).
 
 ---
 
-## What gets installed on employee computers
+## What gets installed on your computer
 
-| Software | Purpose | Visible to employee? |
+| Software | Purpose | Visible to you? |
 |---|---|---|
-| Tridev Activity Watcher (ActivityWatch) | Tracks active window + idle time | Yes (system tray icon) |
+| Tridev Activity Watcher (ActivityWatch) | Tracks active window + idle time | Yes (menu bar / system tray icon) |
 | Tridev Web Watcher (browser extension) | Tracks browser URLs + time spent | Yes (browser extension icon) |
-| Tridev Sync Agent (Docker container) | Sends data to company server | Yes (Docker Desktop) |
+| Tridev Sync Agent | Sends data to company server | Yes (Terminal window) |
 
-> Tridev Activity Watcher is **not hidden** — employees will see it running. You should inform employees that work computer activity is being monitored.
+> Tridev Activity Watcher is **not hidden** — you will see it running. Your employer monitors work computer activity.
 
 ---
 
 ## Step 1: Install Tridev Activity Watcher
 
-Download and install for your OS from: **https://activitywatch.net/downloads/**
+Go to **https://activitywatch.net/downloads/** and download for your OS:
 
-- **Windows**: Download the `.exe` installer → run it → Tridev Activity Watcher starts automatically
-- **macOS**: Download the `.dmg` → drag to Applications → open it
-- **Linux**: Download the `.zip` → extract → run `./aw-qt`
+### macOS (M1 / M2 / M3 / M4 — Apple Silicon)
 
-After installing, Tridev Activity Watcher runs in the **system tray**. You should see the clock icon.
+1. Download **`ActivityWatch-v0.13.2-macos-arm64.dmg`** (the `arm64` version)
+2. Open the `.dmg` → drag **ActivityWatch** to your Applications folder
+3. Open ActivityWatch from Applications
+4. If macOS blocks it: go to **System Settings → Privacy & Security → scroll down → click "Open Anyway"**
+5. The **clock icon** appears in your menu bar (top right of screen)
+6. Verify: open **http://localhost:5600** in your browser — you should see your activity dashboard
 
-Verify it's working: open **http://localhost:5600** in your browser — you should see the activity dashboard.
+### macOS (Intel — older Macs)
+
+Same steps above but download **`ActivityWatch-v0.13.2-macos-x86_64.dmg`** instead.
+
+### Windows
+
+Download the `.exe` installer → run it → Tridev Activity Watcher starts automatically in the system tray.
+
+### Linux
+
+Download the `.zip` → extract → run `./aw-qt`
 
 ---
 
 ## Step 2: Install the Browser Extension
 
-Install **Tridev Web Watcher** (ActivityWatch Web Watcher) in your browser:
+Install **ActivityWatch Web Watcher** in your browser:
 
-- **Chrome**: [Chrome Web Store → search "ActivityWatch Web Watcher"](https://chrome.google.com/webstore/search/activitywatch)
-- **Firefox**: [Firefox Add-ons → search "ActivityWatch Web Watcher"](https://addons.mozilla.org/en-US/firefox/search/?q=activitywatch)
+- **Chrome**: [Chrome Web Store — ActivityWatch Web Watcher](https://chrome.google.com/webstore/detail/activitywatch-web-watcher/nglaklhklhcoonedhgnpgddginnjdadi)
+- **Firefox**: [Firefox Add-ons — ActivityWatch Web Watcher](https://addons.mozilla.org/en-US/firefox/addon/aw-web-watcher/)
 
-After installing, the extension icon appears in your browser toolbar. It automatically connects to your local Tridev Activity Watcher (http://localhost:5600).
+After installing, the extension icon appears in your browser toolbar and connects automatically to ActivityWatch at http://localhost:5600.
 
 ---
 
-## Step 3: Run aw-sync-agent
+## Step 3: Run the Sync Agent
 
 The Tridev Sync Agent runs in the background and sends your activity data to the company server every 5 minutes.
 
-> **Admin will provide your `SERVER_IP` and `BEARER_TOKEN` — do not share these.**
+> **Your admin will give you the `SERVER_IP` and `BEARER_TOKEN` — do not share these.**
 
 ---
 
-### Option A: Build from source (macOS — required for Mac)
+### Mac (M1 / M2 / M3 / M4 and Intel)
 
-> The official binary releases do not include a macOS build. Mac users must build the agent from source (takes ~2 minutes).
+Open **Terminal** (press `Cmd+Space`, type "Terminal", press Enter) and run each block:
 
-**Requirements:** [Homebrew](https://brew.sh) installed.
-
+**1. Install Homebrew** (skip if already installed):
 ```bash
-# 1. Install Go
-brew install go
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 
-# 2. Clone the repo and build
+**2. Install Go:**
+```bash
+brew install go
+```
+
+**3. Download and build the sync agent:**
+```bash
 git clone https://github.com/phrp720/aw-sync-suite
 cd aw-sync-suite/aw-sync-agent
+go build -o aw-sync-agent .
+```
 
-# 3. Run the agent (replace placeholders with values from admin)
+**4. Run the agent** (replace values with what your admin gave you):
+```bash
 ACTIVITY_WATCH_URL=http://localhost:5600 \
 PROMETHEUS_URL=http://YOUR_SERVER_IP:9091 \
 PROMETHEUS_AUTH=YOUR_BEARER_TOKEN \
@@ -73,79 +94,119 @@ CHECKPOINT=./checkpoint.json \
 ./aw-sync-agent
 ```
 
-To run in the background: add `&` at the end, or use a terminal multiplexer like `screen`/`tmux`.
+You should see:
+```
+Synchronization process finished successfully
+```
 
-To run at login (macOS): ask your admin to provide a LaunchAgent `.plist` file.
+**To keep it running in the background** (so closing Terminal doesn't stop it):
+```bash
+nohup env \
+  ACTIVITY_WATCH_URL=http://localhost:5600 \
+  PROMETHEUS_URL=http://YOUR_SERVER_IP:9091 \
+  PROMETHEUS_AUTH=YOUR_BEARER_TOKEN \
+  INCLUDE_HOSTNAME=true \
+  CHECKPOINT=./checkpoint.json \
+  ./aw-sync-agent >> ~/aw-sync.log 2>&1 &
+```
 
----
-
-### Option B: Windows binary
-
-1. Download **`aw-sync-agent-vX.X.X-windows-x86_64.zip`** from:
-   **https://github.com/phrp720/aw-sync-suite/releases/latest**
-
-2. Extract the zip. Get `docker-run.ps1` from your admin and run it in PowerShell:
-   ```powershell
-   .\docker-run.ps1
-   ```
-   *(Requires Docker Desktop — https://www.docker.com/products/docker-desktop/)*
-
-   **Or** edit `config/aw-sync-settings.yaml` in the extracted folder:
-   ```yaml
-   awUrl: "http://localhost:5600"
-   prometheusUrl: "http://YOUR_SERVER_IP:9091/api/v1/write"
-   prometheusAuth: "YOUR_BEARER_TOKEN"
-   cron: "*/5 * * * *"
-   includeHostname: true
-   ```
-   Then run: `aw-sync-agent.exe`
-
-3. To run at Windows startup: place a shortcut to `aw-sync-agent.exe` in:
-   `C:\Users\YOUR_NAME\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\`
+Logs are written to `~/aw-sync.log`.
 
 ---
 
-### Option C: Linux binary
+### Windows
 
-1. Download **`aw-sync-agent-vX.X.X-linux-x86_64.zip`** from:
-   **https://github.com/phrp720/aw-sync-suite/releases/latest**
+1. Install **Go** from https://go.dev/dl/ → download the Windows installer → run it
+2. Open **Command Prompt** (`Win+R` → type `cmd` → Enter)
+3. Run:
+   ```cmd
+   git clone https://github.com/phrp720/aw-sync-suite
+   cd aw-sync-suite\aw-sync-agent
+   go build -o aw-sync-agent.exe .
+   ```
+4. Run the agent:
+   ```cmd
+   set ACTIVITY_WATCH_URL=http://localhost:5600
+   set PROMETHEUS_URL=http://YOUR_SERVER_IP:9091
+   set PROMETHEUS_AUTH=YOUR_BEARER_TOKEN
+   set INCLUDE_HOSTNAME=true
+   set CHECKPOINT=checkpoint.json
+   aw-sync-agent.exe
+   ```
 
-2. Extract, edit `config/aw-sync-settings.yaml` with your server details, then:
+To run at startup: create a shortcut to `aw-sync-agent.exe` and place it in:
+`C:\Users\YOUR_NAME\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\`
+
+---
+
+### Linux
+
+1. Install Go: `sudo apt install golang` (Ubuntu/Debian) or `sudo dnf install golang` (Fedora)
+2. Build and run:
    ```bash
-   chmod +x aw-sync-agent && ./aw-sync-agent
+   git clone https://github.com/phrp720/aw-sync-suite
+   cd aw-sync-suite/aw-sync-agent
+   go build -o aw-sync-agent .
+   ACTIVITY_WATCH_URL=http://localhost:5600 \
+   PROMETHEUS_URL=http://YOUR_SERVER_IP:9091 \
+   PROMETHEUS_AUTH=YOUR_BEARER_TOKEN \
+   INCLUDE_HOSTNAME=true \
+   CHECKPOINT=./checkpoint.json \
+   ./aw-sync-agent
    ```
 
 ---
 
-## Verifying it works
+## Step 4: Verify it's working
 
-After running the agent, wait 5 minutes then ask your admin to check the dashboard. Your computer's **hostname** (computer name) should appear in the `Employee` dropdown on the "Tridev Activity Watcher" dashboard.
+Find your computer's hostname and share it with your admin:
 
-To check your computer's hostname:
-- **Windows**: `echo %COMPUTERNAME%` in Command Prompt
-- **macOS/Linux**: `hostname` in Terminal
+- **macOS/Linux**: run `hostname` in Terminal
+- **Windows**: run `echo %COMPUTERNAME%` in Command Prompt
+
+Your admin will confirm your name appears in the dashboard within 5 minutes.
+
+---
+
+## To run automatically at Mac login
+
+Ask your admin for the `tridev-sync-agent.plist` file. Then:
+
+```bash
+cp tridev-sync-agent.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/tridev-sync-agent.plist
+```
+
+To stop auto-start:
+```bash
+launchctl unload ~/Library/LaunchAgents/tridev-sync-agent.plist
+```
 
 ---
 
 ## Stopping the agent
 
-**Docker:**
+**Mac/Linux (background):**
 ```bash
-docker stop aw-sync-agent
-docker rm aw-sync-agent
+pkill -f aw-sync-agent
 ```
 
-**Binary:** Close the terminal window or press Ctrl+C.
+**Mac/Linux (Terminal):** Press `Ctrl+C`
+
+**Windows:** Close the Command Prompt window or press `Ctrl+C`
 
 ---
 
 ## FAQ
 
 **Q: Will this track what I do outside work hours?**
-Tridev Activity Watcher only runs when your computer is on. You can pause/quit it from the system tray at any time.
+Tridev Activity Watcher only runs when your computer is on. You can pause or quit it from the menu bar / system tray at any time.
 
 **Q: Is my data stored on my computer or the company server?**
 Both. Tridev Activity Watcher stores data locally on your computer. The sync agent also sends a copy to the company server for the admin dashboard.
 
 **Q: Can I see my own data?**
-Yes — open http://localhost:5600 in your browser to see your own personal activity dashboard.
+Yes — open **http://localhost:5600** in your browser to see your personal activity dashboard.
+
+**Q: What does "arm64" mean? Which Mac do I have?**
+Any Mac sold after November 2020 with an M1, M2, M3, or M4 chip is "Apple Silicon" — download `arm64`. Older Intel Macs use `x86_64`. To check: Apple menu → About This Mac → look for "Apple M1/M2/M3/M4" or "Intel Core".
