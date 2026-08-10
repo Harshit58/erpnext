@@ -3,14 +3,14 @@
   "uid": "activitywatch-v1",
   "description": "Tracks active applications, browser usage, idle time and work hours per employee — powered by Tridev Activity Watcher",
   "schemaVersion": 38,
-  "version": 2,
+  "version": 3,
   "refresh": "2m",
   "timezone": "browser",
   "tags": ["tridev", "activity-watcher", "employees", "desktop"],
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "time": { "from": "now-7d", "to": "now" },
+  "time": { "from": "now/d", "to": "now" },
   "timepicker": {},
   "links": [],
   "annotations": { "list": [] },
@@ -283,11 +283,110 @@
       ]
     },
     {
+      "id": 9,
+      "title": "Top Window Titles",
+      "description": "Most focused window titles (document names, page titles, video titles) by time spent",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 25 },
+      "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 80, "lineWidth": 1 },
+          "unit": "s",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "barRadius": 0.05,
+        "barWidth": 0.9,
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "orientation": "horizontal",
+        "showValue": "always",
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
+          "expr": "topk(10, sum by (title) (max_over_time(aw_watcher_window{host=~\"$employee\", title!=\"\"}[$__range])))",
+          "legendFormat": "{{title}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Time by Category",
+      "description": "Time spent per activity category (Work, Comms, Media, Uncategorized, etc.)",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 25 },
+      "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "s",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value"] },
+        "pieType": "donut",
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
+          "expr": "sort_desc(sum by (category) (max_over_time(aw_watcher_window{host=~\"$employee\", category!=\"\"}[$__range])))",
+          "legendFormat": "{{category}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Category Timeline",
+      "description": "How time was split across categories throughout the day",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 33 },
+      "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 70,
+            "lineWidth": 1,
+            "stacking": { "group": "A", "mode": "normal" }
+          },
+          "unit": "s",
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
+          "expr": "sum by (category) (sum_over_time(aw_watcher_window{host=~\"$employee\", category!=\"\"}[$__interval]))",
+          "legendFormat": "{{category}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
       "id": 8,
       "title": "Per Employee — App Usage Breakdown",
       "description": "Time each employee spent in each application",
       "type": "table",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 25 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 40 },
       "datasource": { "type": "prometheus", "uid": "tridev-aw-prometheus" },
       "fieldConfig": {
         "defaults": {
