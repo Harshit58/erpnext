@@ -71,6 +71,7 @@ additional_print_settings = "erpnext.controllers.print_settings.get_print_settin
 on_session_creation = [
 	"erpnext.portal.utils.create_customer_or_supplier",
 	"erpnext.custom.login_redirect.patch_login_redirect",
+	"erpnext.custom.auto_checkin.auto_checkin_on_login",
 ]
 
 treeviews = [
