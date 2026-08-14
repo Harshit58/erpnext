@@ -1,7 +1,7 @@
 import frappe
 
 
-DEFAULT_ROLES = ["Employee", "System Manager"]
+DEFAULT_ROLES = ["Employee", "System Manager", "HR User"]
 
 
 def auto_checkin_on_login():
