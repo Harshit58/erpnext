@@ -74,6 +74,8 @@ on_session_creation = [
 	"erpnext.custom.auto_checkin.auto_checkin_on_login",
 ]
 
+on_logout = "erpnext.custom.auto_checkin.auto_checkout_on_logout"
+
 treeviews = [
 	"Account",
 	"Cost Center",
