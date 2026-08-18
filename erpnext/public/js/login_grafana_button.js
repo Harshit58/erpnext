@@ -27,18 +27,10 @@
 		btn.href = GRAFANA_URL;
 		btn.target = "_blank";
 		btn.rel = "noopener noreferrer";
-		btn.style.cssText =
-			"display:block;text-align:center;padding:9px 16px;" +
-			"background:#f26522;color:#fff;border-radius:6px;" +
-			"text-decoration:none;font-size:13px;font-weight:500;" +
-			"transition:background 0.2s;";
+		// Use the same classes as the login button so it inherits the site theme
+		btn.className = "btn btn-primary btn-block";
+		btn.style.cssText = "display:block;text-align:center;text-decoration:none;";
 		btn.textContent = "View Activity in Grafana";
-		btn.onmouseover = function () {
-			this.style.background = "#d4541a";
-		};
-		btn.onmouseout = function () {
-			this.style.background = "#f26522";
-		};
 
 		loginSection.appendChild(divider);
 		loginSection.appendChild(btn);
