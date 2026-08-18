@@ -30,7 +30,7 @@
 		// Use the same classes as the login button so it inherits the site theme
 		btn.className = "btn btn-primary btn-block";
 		btn.style.cssText = "display:block;text-align:center;text-decoration:none;";
-		btn.textContent = "View Activity in Grafana";
+		btn.textContent = "N-Link Activity Watcher";
 
 		loginSection.appendChild(divider);
 		loginSection.appendChild(btn);
