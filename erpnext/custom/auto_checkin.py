@@ -28,7 +28,7 @@ def _get_employee_for_current_user():
 
 def auto_checkin_on_login():
 	"""
-	Auto-creates an Employee Checkin (IN) on login, once per day per employee.
+	Auto-creates an Employee Checkin (IN) on every login.
 
 	Activated per-site by adding to site_config.json:
 	    { "auto_checkin_on_login": 1 }
@@ -37,24 +37,13 @@ def auto_checkin_on_login():
 	    { "auto_checkin_roles": ["Employee", "System Manager", "HR User"] }
 
 	Sites without "auto_checkin_on_login" are not affected.
+	Multiple logins in a day each create a separate IN entry.
 	"""
 	if not frappe.conf.get("auto_checkin_on_login"):
 		return
 
 	_user, employee = _get_employee_for_current_user()
 	if not employee:
-		return
-
-	today = frappe.utils.today()
-	already_checked_in = frappe.db.exists(
-		"Employee Checkin",
-		{
-			"employee": employee,
-			"log_type": "IN",
-			"time": ["between", [today + " 00:00:00", today + " 23:59:59"]],
-		},
-	)
-	if already_checked_in:
 		return
 
 	checkin = frappe.new_doc("Employee Checkin")
@@ -68,13 +57,13 @@ def auto_checkin_on_login():
 
 def auto_checkout_on_logout():
 	"""
-	Auto-creates an Employee Checkin (OUT) on logout, once per day per employee.
+	Auto-creates an Employee Checkin (OUT) on every logout.
 
 	Activated per-site by adding to site_config.json:
 	    { "auto_checkout_on_logout": 1 }
 
 	Uses the same "auto_checkin_roles" config as auto check-in.
-	Only creates an OUT record if an IN record already exists for today.
+	Multiple logouts in a day each create a separate OUT entry.
 	Sites without "auto_checkout_on_logout" are not affected.
 	"""
 	if not frappe.conf.get("auto_checkout_on_logout"):
@@ -82,31 +71,6 @@ def auto_checkout_on_logout():
 
 	_user, employee = _get_employee_for_current_user()
 	if not employee:
-		return
-
-	today = frappe.utils.today()
-
-	# Only check out if there was a check-in today
-	checked_in_today = frappe.db.exists(
-		"Employee Checkin",
-		{
-			"employee": employee,
-			"log_type": "IN",
-			"time": ["between", [today + " 00:00:00", today + " 23:59:59"]],
-		},
-	)
-	if not checked_in_today:
-		return
-
-	already_checked_out = frappe.db.exists(
-		"Employee Checkin",
-		{
-			"employee": employee,
-			"log_type": "OUT",
-			"time": ["between", [today + " 00:00:00", today + " 23:59:59"]],
-		},
-	)
-	if already_checked_out:
 		return
 
 	checkout = frappe.new_doc("Employee Checkin")
