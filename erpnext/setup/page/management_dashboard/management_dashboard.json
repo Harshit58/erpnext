@@ -1,0 +1,26 @@
+{
+ "creation": "2026-08-19 10:50:00.000000",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "fa fa-dashboard",
+ "idx": 1,
+ "modified": "2026-08-19 10:50:00.000000",
+ "modified_by": "Administrator",
+ "module": "Setup",
+ "name": "management-dashboard",
+ "owner": "Administrator",
+ "page_name": "management-dashboard",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "HR User"
+  }
+ ],
+ "standard": "Yes",
+ "title": "Management Dashboard"
+}
