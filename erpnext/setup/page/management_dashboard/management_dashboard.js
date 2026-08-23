@@ -177,12 +177,7 @@ erpnext.ManagementDashboard = class ManagementDashboard {
 			},
 			error: (r) => {
 				if (r.exc_type === "PermissionError") {
-					frappe.msgprint({
-						title: __("Not Permitted"),
-						message: __("You do not have access to this page."),
-						indicator: "red",
-					});
-					setTimeout(() => frappe.set_route(""), 2000);
+					window.location.href = "/app/home";
 				}
 			},
 		});
