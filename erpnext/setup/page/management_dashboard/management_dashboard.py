@@ -44,13 +44,15 @@ def _hours_between(in_time, out_time, now=None):
 
 def _has_dashboard_access():
 	try:
-		page = frappe.get_cached_doc("Page", "management-dashboard")
-		if not page.roles:
-			return True
-		page_roles = {r.role for r in page.roles}
-		return bool(set(frappe.get_roles()).intersection(page_roles))
+		settings = frappe.get_single("Management Dashboard Settings")
+		allowed_roles = {row.role for row in (settings.allowed_roles or [])}
 	except Exception:
-		return False
+		allowed_roles = set()
+
+	if not allowed_roles:
+		allowed_roles = {"System Manager", "HR Manager"}
+
+	return bool(set(frappe.get_roles()).intersection(allowed_roles))
 
 
 @frappe.whitelist()
