@@ -52,6 +52,8 @@ def _has_dashboard_access():
 	if not allowed_roles:
 		allowed_roles = {"System Manager", "HR Manager"}
 
+	allowed_roles.add("System Manager")
+
 	return bool(set(frappe.get_roles()).intersection(allowed_roles))
 
 
