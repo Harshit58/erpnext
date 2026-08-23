@@ -58,6 +58,11 @@ def _has_dashboard_access():
 
 
 @frappe.whitelist()
+def check_permission():
+	return _has_dashboard_access()
+
+
+@frappe.whitelist()
 def get_dashboard_data(for_date=None):
 	if not _has_dashboard_access():
 		return {"__no_permission": True}

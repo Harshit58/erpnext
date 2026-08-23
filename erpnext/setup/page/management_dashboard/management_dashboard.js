@@ -1,21 +1,31 @@
 frappe.pages["management-dashboard"].on_page_load = function (wrapper) {
-	if (!$("#management-dashboard-css").length) {
-		$("<link>", {
-			id: "management-dashboard-css",
-			rel: "stylesheet",
-			type: "text/css",
-			href: "/assets/erpnext/setup/page/management_dashboard/management_dashboard.css",
-		}).appendTo("head");
-	}
+	frappe.call({
+		method: "erpnext.setup.page.management_dashboard.management_dashboard.check_permission",
+		callback: (r) => {
+			if (!r.message) {
+				window.location.href = "/app/home";
+				return;
+			}
 
-	const page = frappe.ui.make_app_page({
-		parent: wrapper,
-		title: __("Management Dashboard"),
+			if (!$("#management-dashboard-css").length) {
+				$("<link>", {
+					id: "management-dashboard-css",
+					rel: "stylesheet",
+					type: "text/css",
+					href: "/assets/erpnext/setup/page/management_dashboard/management_dashboard.css",
+				}).appendTo("head");
+			}
+
+			const page = frappe.ui.make_app_page({
+				parent: wrapper,
+				title: __("Management Dashboard"),
+			});
+
+			page.set_primary_action(__("Refresh"), () => wrapper.dashboard.refresh(), "refresh");
+
+			wrapper.dashboard = new erpnext.ManagementDashboard(wrapper);
+		},
 	});
-
-	page.set_primary_action(__("Refresh"), () => wrapper.dashboard.refresh(), "refresh");
-
-	wrapper.dashboard = new erpnext.ManagementDashboard(wrapper);
 };
 
 erpnext.ManagementDashboard = class ManagementDashboard {
