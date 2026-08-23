@@ -75,6 +75,7 @@ on_session_creation = [
 	"erpnext.portal.utils.create_customer_or_supplier",
 	"erpnext.custom.login_redirect.patch_login_redirect",
 	"erpnext.custom.auto_checkin.auto_checkin_on_login",
+	"erpnext.setup.page.management_dashboard.management_dashboard.on_session_creation",
 ]
 
 on_logout = "erpnext.custom.auto_checkin.auto_checkout_on_logout"

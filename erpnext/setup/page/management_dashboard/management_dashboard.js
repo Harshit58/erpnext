@@ -11,7 +11,6 @@ frappe.pages["management-dashboard"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: __("Management Dashboard"),
-		single_column: true,
 	});
 
 	page.set_primary_action(__("Refresh"), () => wrapper.dashboard.refresh(), "refresh");
@@ -25,9 +24,94 @@ erpnext.ManagementDashboard = class ManagementDashboard {
 		this.page = wrapper.page;
 		this.selected_date = frappe.datetime.get_today();
 		this.$container = $(wrapper).find(".layout-main-section");
+		this.setup_sidebar();
 		this.setup_layout();
 		this.setup_date_filter();
 		this.refresh();
+	}
+
+	setup_sidebar() {
+		let $side_section = $(this.wrapper).find(".layout-side-section");
+
+		let list_sidebar = $(`
+			<div class="list-sidebar overlay-sidebar hidden-xs hidden-sm">
+				<div class="desk-sidebar list-unstyled sidebar-menu"></div>
+			</div>
+		`).appendTo($side_section);
+
+		let $sidebar = list_sidebar.find(".desk-sidebar");
+
+		frappe.xcall("frappe.desk.desktop.get_workspace_sidebar_items").then((data) => {
+			if (!data || !data.pages) return;
+
+			let current_route = frappe.get_route_str();
+
+			let public_pages = data.pages
+				.filter((p) => p.public && (!p.parent_page || p.parent_page === ""))
+				.uniqBy((d) => d.title);
+
+			let private_pages = data.pages
+				.filter((p) => !p.public && (!p.parent_page || p.parent_page === ""))
+				.uniqBy((d) => d.title);
+
+			let render_section = (pages, label) => {
+				if (!pages.length) return;
+
+				let $section = $(
+					`<div class="standard-sidebar-section nested-container"></div>`
+				);
+				let $title = $(`<button class="btn-reset standard-sidebar-label">
+					<span>${frappe.utils.icon("es-line-down", "xs")}</span>
+					<span class="section-title">${label}</span>
+				</button>`).appendTo($section);
+
+				$title.on("click", (e) => {
+					const $e = $(e.currentTarget);
+					const href = $e.find("span use").attr("href");
+					const isCollapsed = href === "#es-line-down";
+					$e.find("span use").attr(
+						"href",
+						isCollapsed ? "#es-line-right-chevron" : "#es-line-down"
+					);
+					$e.parent().find(".sidebar-item-container").toggleClass("hidden");
+					$e.attr("aria-expanded", String(!isCollapsed));
+				});
+
+				pages.forEach((page) => {
+					let route = page.public
+						? frappe.router.slug(page.title)
+						: "private/" + frappe.router.slug(page.title);
+					let is_selected = current_route === route;
+
+					$(`<div class="sidebar-item-container"
+						item-parent=""
+						item-name="${page.title}"
+						item-public="${page.public || 0}"
+						item-is-hidden="${page.is_hidden || 0}"
+					>
+						<div class="desk-sidebar-item standard-sidebar-item ${is_selected ? "selected" : ""}">
+							<a href="/app/${route}" class="item-anchor" title="${__(page.title)}">
+								<span class="sidebar-item-icon" item-icon="${page.icon || "folder-normal"}">
+									${
+										page.public
+											? frappe.utils.icon(page.icon || "folder-normal", "md")
+											: `<span class="indicator ${page.indicator_color || "gray"}"></span>`
+									}
+								</span>
+								<span class="sidebar-item-label">${__(page.title)}</span>
+							</a>
+							<div class="sidebar-item-control"></div>
+						</div>
+						<div class="sidebar-child-item nested-container"></div>
+					</div>`).appendTo($section);
+				});
+
+				$section.appendTo($sidebar);
+			};
+
+			render_section(public_pages, __("Modules"));
+			render_section(private_pages, __("Private"));
+		});
 	}
 
 	setup_layout() {

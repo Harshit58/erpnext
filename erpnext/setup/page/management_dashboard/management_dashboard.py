@@ -182,3 +182,23 @@ def get_dashboard_data(for_date=None):
 			"cancelled": len(cancelled_todos),
 		},
 	}
+
+
+def on_session_creation():
+	"""Redirect users with allowed roles to the management dashboard on login."""
+	user = frappe.session.user
+	if not user or user == "Guest":
+		return
+
+	try:
+		settings = frappe.get_single("Management Dashboard Settings")
+		allowed_roles = [row.role for row in (settings.allowed_roles or [])]
+	except Exception:
+		return
+
+	if not allowed_roles:
+		return
+
+	user_roles = set(frappe.get_roles(user))
+	if user_roles.intersection(set(allowed_roles)):
+		frappe.cache.hset("redirect_after_login", user, "/app/management-dashboard")
