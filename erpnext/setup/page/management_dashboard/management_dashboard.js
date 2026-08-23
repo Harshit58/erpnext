@@ -169,16 +169,11 @@ erpnext.ManagementDashboard = class ManagementDashboard {
 				for_date: this.selected_date,
 			},
 			callback: (r) => {
-				if (!r.message) {
-					this.$attendance_wrap.html(`<div class="empty-state">${__("No data available")}</div>`);
+				if (!r.message || r.message.__no_permission) {
+					window.location.href = "/app/home";
 					return;
 				}
 				this.render(r.message);
-			},
-			error: (r) => {
-				if (r.exc_type === "PermissionError") {
-					window.location.href = "/app/home";
-				}
 			},
 		});
 	}

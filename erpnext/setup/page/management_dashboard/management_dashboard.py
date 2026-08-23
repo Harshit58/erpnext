@@ -60,7 +60,7 @@ def _has_dashboard_access():
 @frappe.whitelist()
 def get_dashboard_data(for_date=None):
 	if not _has_dashboard_access():
-		frappe.throw(_("Not permitted"), frappe.PermissionError)
+		return {"__no_permission": True}
 
 	for_date = getdate(for_date or today())
 	day_start, day_end = _day_bounds(for_date)
