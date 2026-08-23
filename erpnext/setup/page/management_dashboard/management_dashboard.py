@@ -42,8 +42,16 @@ def _hours_between(in_time, out_time, now=None):
 	return flt((out_dt - in_dt).total_seconds() / 3600, 2)
 
 
+def _has_dashboard_access():
+	page_roles = frappe.get_all("Page Role", filters={"parent": "management-dashboard"}, pluck="role")
+	return bool(set(frappe.get_roles()).intersection(set(page_roles)))
+
+
 @frappe.whitelist()
 def get_dashboard_data(for_date=None):
+	if not _has_dashboard_access():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
 	for_date = getdate(for_date or today())
 	day_start, day_end = _day_bounds(for_date)
 	now = now_datetime()

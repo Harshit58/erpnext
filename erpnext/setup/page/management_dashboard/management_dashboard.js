@@ -175,6 +175,11 @@ erpnext.ManagementDashboard = class ManagementDashboard {
 				}
 				this.render(r.message);
 			},
+			error: (r) => {
+				if (r.exc_type === "PermissionError") {
+					frappe.show_not_permitted("management-dashboard");
+				}
+			},
 		});
 	}
 
