@@ -1,0 +1,34 @@
+{
+ "charts": [],
+ "content": "[]",
+ "creation": "2026-08-25 10:00:00.000000",
+ "doctype": "Workspace",
+ "icon": "dashboard",
+ "is_hidden": 0,
+ "label": "Management Dashboard",
+ "links": [],
+ "modified": "2026-08-25 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Setup",
+ "name": "Management Dashboard",
+ "owner": "Administrator",
+ "public": 1,
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "HR Manager"
+  }
+ ],
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "icon": "dashboard",
+   "label": "Management Dashboard",
+   "link_to": "management-dashboard",
+   "type": "Page"
+  }
+ ],
+ "title": "Management Dashboard"
+}
