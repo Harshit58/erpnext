@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[]",
+ "content": "[{\"id\":\"mgmt-sc-1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Management Dashboard\",\"col\":3}}]",
  "creation": "2026-08-25 10:00:00.000000",
  "doctype": "Workspace",
  "icon": "dashboard",
