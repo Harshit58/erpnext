@@ -165,3 +165,9 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+.management-dashboard .dashboard-welcome {
+	margin-top: 6px;
+	font-size: 14px;
+	color: #6c757d;
+}
