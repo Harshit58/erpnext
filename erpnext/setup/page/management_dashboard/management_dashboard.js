@@ -132,7 +132,7 @@ erpnext.ManagementDashboard = class ManagementDashboard {
 					<div class="dashboard-subtitle">
 						<span>Company Overview</span>|<span>Today</span>|<span>Current Month</span>
 					</div>
-					<div class="dashboard-welcome">Welcome back, ${frappe.boot.user.full_name || frappe.session.user}</div>
+					<div class="dashboard-welcome">Welcome back, ${frappe.boot.user.full_name || frappe.session.user} here's your team's live status.</div>
 				</div>
 				<div class="kpi-row"></div>
 				<div class="section-card attendance-section">
