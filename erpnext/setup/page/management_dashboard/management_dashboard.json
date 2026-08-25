@@ -10,11 +10,7 @@
  "name": "management-dashboard",
  "owner": "Administrator",
  "page_name": "management-dashboard",
- "roles": [
-  {
-   "role": "System Manager"
-  }
- ],
+ "roles": [],
  "standard": "Yes",
  "title": "Management Dashboard"
 }
