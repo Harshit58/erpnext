@@ -50,7 +50,7 @@ def _has_dashboard_access():
 		allowed_roles = set()
 
 	if not allowed_roles:
-		allowed_roles = {"System Manager", "HR Manager"}
+		allowed_roles = {"System Manager"}
 
 	allowed_roles.add("System Manager")
 
