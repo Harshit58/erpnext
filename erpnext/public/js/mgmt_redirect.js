@@ -1,5 +1,10 @@
-frappe.router.on("change", function () {
-	if (frappe.get_route()[0] === "mgmt-dashboard") {
-		frappe.set_route("management-dashboard");
+(function () {
+	function check_and_redirect() {
+		if (window.location.pathname === "/app/mgmt-dashboard") {
+			window.location.replace("/app/management-dashboard");
+		}
 	}
-});
+
+	$(document).on("page-change", check_and_redirect);
+	$(document).on("page-load", check_and_redirect);
+})();
