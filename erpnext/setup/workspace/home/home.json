@@ -274,8 +274,8 @@
    "color": "Blue",
    "icon": "dashboard",
    "label": "Management Dashboard",
-   "link_to": "management-dashboard",
-   "type": "Page"
+   "link_to": "/app/management-dashboard",
+   "type": "URL"
   }
  ],
  "title": "Home"
