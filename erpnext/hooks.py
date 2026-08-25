@@ -22,7 +22,10 @@ add_to_apps_screen = [
 
 develop_version = "15.x.x-develop"
 
-app_include_js = "erpnext.bundle.js"
+app_include_js = [
+	"erpnext.bundle.js",
+	"/assets/erpnext/js/mgmt_redirect.js",
+]
 app_include_css = "erpnext.bundle.css"
 web_include_js = [
 	"erpnext-web.bundle.js",
