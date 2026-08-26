@@ -1,22 +1,24 @@
 import frappe
 
 
+def _get_redirect_for_user(user):
+	"""Return the post-login redirect path for the given user based on their roles."""
+	user_roles = set(frappe.get_roles(user))
+	if "System Manager" in user_roles:
+		return "/app/management-dashboard"
+	return "/app/projects"
+
+
 def patch_login_redirect():
 	"""
-	Patches the LoginManager to redirect users to a custom path after login.
+	Patches the LoginManager to redirect users to a role-based path after login.
 
-	Activated per-site by adding "login_redirect" to site_config.json, e.g.:
-	    { "login_redirect": "/app/home" }
-
-	Sites without this key are not affected.
+	System Manager → /app/management-dashboard
+	Everyone else   → /app/projects
 
 	The patch is applied once per worker process (guarded by _login_redirect_patched).
-	The redirect value is read fresh from site_config on every login so that config
-	changes take effect without requiring a bench restart.
+	Falls back to site_config login_redirect if the role check isn't applicable.
 	"""
-	if not frappe.conf.get("login_redirect"):
-		return
-
 	from frappe.auth import LoginManager
 
 	# Prevent accumulating nested patches across multiple logins in the same worker
@@ -27,10 +29,10 @@ def patch_login_redirect():
 
 	def patched_set_user_info(self, resume=False):
 		original_set_user_info(self, resume)
-		# Read fresh from site_config on every login — never uses a stale closure value
-		current_redirect = frappe.conf.get("login_redirect")
-		if not resume and current_redirect and self.info.user_type != "Website User":
-			frappe.local.response["home_page"] = current_redirect
+		if resume or self.info.user_type == "Website User":
+			return
+		redirect = _get_redirect_for_user(self.info.name)
+		frappe.local.response["home_page"] = redirect
 
 	patched_set_user_info._login_redirect_patched = True
 	LoginManager.set_user_info = patched_set_user_info

@@ -214,6 +214,4 @@ def on_session_creation():
 
 	user_roles = set(frappe.get_roles(user))
 	redirect = "/app/management-dashboard" if "System Manager" in user_roles else "/app/projects"
-
 	frappe.cache.hset("redirect_after_login", user, redirect)
-	frappe.local.response["home_page"] = redirect
