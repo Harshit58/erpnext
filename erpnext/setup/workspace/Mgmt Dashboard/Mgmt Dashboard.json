@@ -4,7 +4,7 @@
  "creation": "2026-08-25 10:00:00.000000",
  "doctype": "Workspace",
  "icon": "dashboard",
- "is_hidden": 1,
+ "is_hidden": 0,
  "label": "Mgmt Dashboard",
  "links": [],
  "modified": "2026-08-25 10:46:00.000000",
