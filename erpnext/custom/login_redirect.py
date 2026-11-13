@@ -16,12 +16,10 @@ def patch_login_redirect():
 	System Manager → /app/management-dashboard
 	Everyone else   → /app/projects
 
-	Only active when site_config has enable_management_dashboard = true.
-	The patch is applied once per worker process (guarded by _login_redirect_patched).
+	Only active on sites where site_config has enable_management_dashboard = true.
+	The patch is applied once per worker process (guarded by _login_redirect_patched),
+	but the site config check runs on every login so multi-tenant workers are safe.
 	"""
-	if not frappe.conf.get("enable_management_dashboard"):
-		return
-
 	from frappe.auth import LoginManager
 
 	# Prevent accumulating nested patches across multiple logins in the same worker
@@ -32,6 +30,8 @@ def patch_login_redirect():
 
 	def patched_set_user_info(self, resume=False):
 		original_set_user_info(self, resume)
+		if not frappe.conf.get("enable_management_dashboard"):
+			return
 		if resume or self.info.user_type == "Website User":
 			return
 		redirect = _get_redirect_for_user(self.info.name)
