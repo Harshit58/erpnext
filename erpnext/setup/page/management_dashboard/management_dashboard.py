@@ -208,6 +208,9 @@ def get_dashboard_data(for_date=None):
 
 
 def on_session_creation():
+	if not frappe.conf.get("enable_management_dashboard"):
+		return
+
 	user = frappe.session.user
 	if not user or user == "Guest":
 		return
